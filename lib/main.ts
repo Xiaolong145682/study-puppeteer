@@ -23,22 +23,12 @@ interface IWriteData {
   title?: string // 爬取到的商品标题
 }
 
-// 格式化的进度输出 用来显示当前爬取的进度
-function formatProgress(current: number): string {
-  let percent = (current / TOTAL_PAGE) * 100
-  let done = ~~(current / TOTAL_PAGE * 40)
-  let left = 40 - done
-  let str = `当前进度：[${''.padStart(done, '=')}${''.padStart(left, '-')}]   ${percent}%`
-  return str
-}
-
-const sleep = (time: number) => new Promise(resolve => setTimeout(resolve, time))
-
 // 进入代码的主逻辑
 async function main() {
   // 首先通过Puppeteer启动一个浏览器环境
   const browser = await puppeteer.launch({
-    headless: false, // 是否使用 headless 模式
+    // 是否使用 headless 模式 默认为 true，即默认打开无头（没有实际界面）模式，为了方面观察，可以将 headless 设置为 false
+    headless: false,
   })
   log(chalk.green('服务正常启动'))
   // 使用 try catch 捕获异步中的错误进行统一的错误处理
@@ -54,12 +44,23 @@ async function main() {
       }
     })
 
-    // 打开我们刚刚看见的淘宝页面
+    await page.setRequestInterception(true);
+    page.on('request', (interceptedRequest) => {
+      // 监听所有请求，并更改 headers，下面我在header 上加了一个 XiaoLong
+      interceptedRequest.continue({
+        headers: Object.assign({}, interceptedRequest.headers(), {
+          'XiaoLong': 'niubuniubi',
+        }),
+       });
+    })
+
+    // 打开页面
     await page.goto('https://www.lagou.com/wn/jobs?kd=web%E5%89%8D%E7%AB%AF&city=%E6%B7%B1%E5%9C%B3')
     log(chalk.yellow('页面初次加载完毕'))
     await handleData()
 
     // 所有的数据爬取完毕后关闭浏览器
+    // NOTE: 为了方便观察，暂时不关闭浏览器
     // await browser.close()
     log(chalk.green('服务正常结束'))
 
@@ -92,7 +93,8 @@ async function main() {
     await browser.close()
   } finally {
     // 最后要退出进程
-    process.exit(0)
+    // NOTE: 为了方便观察，暂时不退出
+    // process.exit(0)
   }
 }
 
