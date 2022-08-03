@@ -1,0 +1,17 @@
+{
+  "name": "study-puppeteer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./dist/lib/main.js",
+  "scripts": {
+    "dev": "tsc && node ./dist/lib/main.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^5.0.1",
+    "puppeteer": "^15.5.0"
+  }
+}
