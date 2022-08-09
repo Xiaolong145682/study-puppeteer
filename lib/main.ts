@@ -1,16 +1,16 @@
 // 引入一些需要用到的库以及一些声明
 import * as puppeteer from 'puppeteer' // 引入Puppeteer
 // import mongo from '../lib/mongoDb' // 需要用到的 mongodb库，用来存取爬取的数据
-// import chalk from 'chalk' // 一个美化 console 输出的库
+import chalk from 'chalk' // 一个美化 console 输出的库
 
-const chalk = {
-  red: (str: string) => `\x1b[31m${str}\x1b[0m`,
-  green: (str: string) => `\x1b[32m${str}\x1b[0m`,
-  blue: (str: string) => `\x1b[34m${str}\x1b[0m`,
-  yellow: (str: string) => `\x1b[33m${str}\x1b[0m`,
-  magenta: (str: string) => `\x1b[35m${str}\x1b[0m`,
-  cyan: (str: string) => `\x1b[36m${str}\x1b[0m`,
-}
+// const chalk = {
+//   red: (str: string) => `\x1b[31m${str}\x1b[0m`,
+//   green: (str: string) => `\x1b[32m${str}\x1b[0m`,
+//   blue: (str: string) => `\x1b[34m${str}\x1b[0m`,
+//   yellow: (str: string) => `\x1b[33m${str}\x1b[0m`,
+//   magenta: (str: string) => `\x1b[35m${str}\x1b[0m`,
+//   cyan: (str: string) => `\x1b[36m${str}\x1b[0m`,
+// }
 
 const log = console.log // 缩写 console.log
 const TOTAL_PAGE = 5 // 定义需要爬取的网页数量，对应页面下部的跳转链接
@@ -28,7 +28,7 @@ async function main() {
   // 首先通过Puppeteer启动一个浏览器环境
   const browser = await puppeteer.launch({
     // 是否使用 headless 模式 默认为 true，即默认打开无头（没有实际界面）模式，为了方面观察，可以将 headless 设置为 false
-    headless: false,
+    headless: true,
   })
   log(chalk.green('服务正常启动'))
   // 使用 try catch 捕获异步中的错误进行统一的错误处理
@@ -56,6 +56,11 @@ async function main() {
 
     // 打开页面
     await page.goto('https://www.lagou.com/wn/jobs?kd=web%E5%89%8D%E7%AB%AF&city=%E6%B7%B1%E5%9C%B3')
+    // 将页面转成 pdf (仅在 无头模式 下生效，即 headless: true)
+    await page.pdf({
+      path: './lagou.pdf',
+      format: 'A4',
+     });
     log(chalk.yellow('页面初次加载完毕'))
     await handleData()
 
